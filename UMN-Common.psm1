@@ -186,7 +186,7 @@ function Get-ARP {
 
 		.DESCRIPTION
 			This function returns an object containing all arp entries and details for each sub item property. On 64-bit 
-			powershell sessions there's dynamic paramters to specify the the 32-bit registry or 64-bit registry only
+			powershell sessions there's dynamic PARAMETERs to specify the the 32-bit registry or 64-bit registry only
 
 		.NOTES
 			Name: Get-ARP
@@ -350,6 +350,8 @@ function Get-WebReqErrorDetails {
 	return ($reader.ReadToEnd() | ConvertFrom-Json)
 }
 #endregion
+
+#region Out-RecursiveHash
 function Out-RecursiveHash {
 	<#
 		.SYNOPSIS
@@ -392,7 +394,8 @@ function Out-RecursiveHash {
 	}
 
 	return $Return
-} #END Out-RecursiveHash
+}
+#endregion
 
 <#
     .Synopsis
