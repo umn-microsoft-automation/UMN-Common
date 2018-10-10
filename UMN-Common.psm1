@@ -322,6 +322,60 @@ function Get-RandomString {
 	return $Result
 } #END Get-RandomString
 
+#region Get-UsersIDM	
+	function Get-UsersIDM 
+	{
+		<#
+			.Synopsis
+				Fetch list of users from IDM
+			.DESCRIPTION
+				Fetch list of users from IDM
+			.EXAMPLE    
+				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(Role=*.cur*)"
+			.EXAMPLE
+				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(&(Role=*.staff.*)(cn=mrEd))"
+		#>
+
+		[CmdletBinding()]
+		Param
+		(
+			[System.Net.NetworkCredential]$ldapCredential,
+
+			[Parameter(Mandatory)]
+			[string]$ldapServer,
+
+			[Parameter(Mandatory)]
+			[string]$ldapSearchString,
+
+			[string]$searchDN
+		)
+		#Load the assemblies needed for ldap lookups
+		$null = [System.Reflection.Assembly]::LoadWithPartialName("System.DirectoryServices.Protocols")
+		$null = [System.Reflection.Assembly]::LoadWithPartialName("System.Net")
+
+		#setup the ldap connection
+		$ldapConnection = New-Object System.DirectoryServices.Protocols.LdapConnection((New-Object System.DirectoryServices.Protocols.LdapDirectoryIdentifier($ldapServer,636)), $ldapCredential)
+		$ldapConnection.AuthType = [System.DirectoryServices.Protocols.AuthType]::Basic
+		$ldapConnection.SessionOptions.ProtocolVersion = 3
+		#cert validation fails, so this will never validate the cert and just connect things
+		$ldapConnection.SessionOptions.VerifyServerCertificate = { return $true; }
+		$ldapConnection.SessionOptions.SecureSocketLayer = $true
+
+		$ldapConnection.Bind()
+
+		#build the ldap query
+		$ldapSearch = New-Object System.DirectoryServices.Protocols.SearchRequest
+		$ldapSearch.Filter = $ldapSearchString
+		$ldapSearch.Scope = "Subtree"
+		$ldapSearch.DistinguishedName = $searchDN
+
+		#execute query for Students...30 minute timeout...generally takes about 12 minutes
+		$ldapResponse = $ldapConnection.SendRequest($ldapSearch, (New-Object System.TimeSpan(0,30,0))) -as [System.DirectoryServices.Protocols.SearchResponse]
+		$null = $ldapConnection.Dispose()
+		return ($ldapResponse)
+	}
+#endregion
+
 #region Get-WebReqErrorDetails
 function Get-WebReqErrorDetails {
 	<#
