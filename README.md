@@ -1,5 +1,8 @@
 # UMN-Common
 
+## 1.0.6 - 10/15/2018
+Added 2 functions Send-SplunkHEC and Get-UsersIDM
+
 ## Functions
 
 ### Get-WebReqErrorDetails
