@@ -322,6 +322,60 @@ function Get-RandomString {
 	return $Result
 } #END Get-RandomString
 
+#region Get-UsersIDM	
+	function Get-UsersIDM 
+	{
+		<#
+			.Synopsis
+				Fetch list of users from IDM
+			.DESCRIPTION
+				Fetch list of users from IDM
+			.EXAMPLE    
+				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(Role=*.cur*)"
+			.EXAMPLE
+				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(&(Role=*.staff.*)(cn=mrEd))"
+		#>
+
+		[CmdletBinding()]
+		Param
+		(
+			[System.Net.NetworkCredential]$ldapCredential,
+
+			[Parameter(Mandatory)]
+			[string]$ldapServer,
+
+			[Parameter(Mandatory)]
+			[string]$ldapSearchString,
+
+			[string]$searchDN
+		)
+		#Load the assemblies needed for ldap lookups
+		$null = [System.Reflection.Assembly]::LoadWithPartialName("System.DirectoryServices.Protocols")
+		$null = [System.Reflection.Assembly]::LoadWithPartialName("System.Net")
+
+		#setup the ldap connection
+		$ldapConnection = New-Object System.DirectoryServices.Protocols.LdapConnection((New-Object System.DirectoryServices.Protocols.LdapDirectoryIdentifier($ldapServer,636)), $ldapCredential)
+		$ldapConnection.AuthType = [System.DirectoryServices.Protocols.AuthType]::Basic
+		$ldapConnection.SessionOptions.ProtocolVersion = 3
+		#cert validation fails, so this will never validate the cert and just connect things
+		$ldapConnection.SessionOptions.VerifyServerCertificate = { return $true; }
+		$ldapConnection.SessionOptions.SecureSocketLayer = $true
+
+		$ldapConnection.Bind()
+
+		#build the ldap query
+		$ldapSearch = New-Object System.DirectoryServices.Protocols.SearchRequest
+		$ldapSearch.Filter = $ldapSearchString
+		$ldapSearch.Scope = "Subtree"
+		$ldapSearch.DistinguishedName = $searchDN
+
+		#execute query for Students...30 minute timeout...generally takes about 12 minutes
+		$ldapResponse = $ldapConnection.SendRequest($ldapSearch, (New-Object System.TimeSpan(0,30,0))) -as [System.DirectoryServices.Protocols.SearchResponse]
+		$null = $ldapConnection.Dispose()
+		return ($ldapResponse)
+	}
+#endregion
+
 #region Get-WebReqErrorDetails
 function Get-WebReqErrorDetails {
 	<#
@@ -394,17 +448,81 @@ function Out-RecursiveHash {
 	return $Return
 } #END Out-RecursiveHash
 
-<#
-    .Synopsis
-    installs latest version of a module and deletes the old one
-    .DESCRIPTION
-    The problem with Update-module is it leave the old one behind, this cleans that up
-    .EXAMPLE
-    Set-ModuleLatestVersion -module xPSDesiredStateConfiguration
-#>
+#region Send-SplunkHEC
+	function Send-SplunkHEC
+	{
+		<#
+			.Synopsis
+				Send event to Splunk HTTP Event Collector
+			.DESCRIPTION
+				Send event to Splunk HTTP Event Collector
+			.PARAMETER uri
+				URI for HEC endpoint
+			.PARAMETER header
+				contains auth token
+			.PARAMETER host
+				Part of Splunk Metadata for event.  Device data being sent from
+			.PARAMETER source
+				Part of Splunk Metadata for event.  Source 
+			.PARAMETER sourceType
+				Part of Splunk Metadata for event.  SourceType
+			.PARAMETER metadata
+				Part of Splunk Metadata for event.   Combination of host,source,sourcetype in performatted hashtable, will be comverted to JSON
+			.PARAMETER eventData
+				Event Data in hastable or pscustomeobject, will be comverted to JSON
+		#>
+		[CmdletBinding()]
+		Param
+		(
+			# Param1 help description
+			[Parameter(Mandatory)]
+			[string]$uri,
+
+			[Parameter(Mandatory)]
+			[Collections.Hashtable]$header,
+
+			[Parameter(Mandatory,ParameterSetName='Components')]
+			[String]$host,
+
+			[Parameter(Mandatory,ParameterSetName='Components')]
+			[String]$source,
+
+			[Parameter(Mandatory,ParameterSetName='Components')]
+			[String]$sourceType,
+
+			[Parameter(Mandatory,ParameterSetName='hashtable')]
+			[Collections.Hashtable]$metadata,
+
+			# This can be [Management.Automation.PSCustomObject] or [Collections.Hashtable]
+			[Parameter(Mandatory)]
+			$eventData
+		)
+
+		Begin{}
+		Process
+		{
+			if ($metadata){$bodySplunk = $metadata}
+			else {$bodySplunk = @{'host' = $host;'source' = $source;'sourcetype' = $sourcetype}}
+			$bodySplunk['time'] = [Math]::Floor((Get-Date ((get-date).toUniversalTime()) -UFormat +%s))
+			$bodySplunk['event'] = $eventData
+			$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body ($bodySplunk | ConvertTo-Json) -Method Post
+			if ($response.text -ne 'Success' -or $response.code -ne 0){throw "Failed to submit to Splunk HEC $($response)"}
+			else{return $true}
+		}
+		End{}
+	}
+#endregion
 function Set-ModuleLatestVersion
 {
-    [CmdletBinding()]
+	<#
+		.Synopsis
+		installs latest version of a module and deletes the old one
+		.DESCRIPTION
+		The problem with Update-module is it leave the old one behind, this cleans that up
+		.EXAMPLE
+		Set-ModuleLatestVersion -module xPSDesiredStateConfiguration
+	#>
+	[CmdletBinding()]
     Param
     (
         # Param1 help description
