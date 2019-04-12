@@ -503,7 +503,7 @@ function Out-RecursiveHash {
 		{
 			if ($metadata){$bodySplunk = $metadata}
 			else {$bodySplunk = @{'host' = $host;'source' = $source;'sourcetype' = $sourcetype}}
-			$bodySplunk['time'] = [Math]::Floor((Get-Date ((get-date).toUniversalTime()) -UFormat +%s))
+			$bodySplunk['time'] = (Get-Date ((get-date).toUniversalTime()) -UFormat +%s)
 			$bodySplunk['event'] = $eventData
 			$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body ($bodySplunk | ConvertTo-Json) -Method Post
 			if ($response.text -ne 'Success' -or $response.code -ne 0){throw "Failed to submit to Splunk HEC $($response)"}
