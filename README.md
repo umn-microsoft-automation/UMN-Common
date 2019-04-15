@@ -1,5 +1,8 @@
 # UMN-Common
 
+## 1.0.7 - 4/12/2019
+Increased granularity of time in Send-SplunkHEC
+
 ## 1.0.6 - 10/15/2018
 Added 2 functions Send-SplunkHEC and Get-UsersIDM
 
