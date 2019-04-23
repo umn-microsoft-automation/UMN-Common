@@ -28,13 +28,13 @@
 RootModule = 'UMN-Common.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.7'
+ModuleVersion = '1.0.8'
 
 # ID used to uniquely identify this module
 GUID = '4a7ba823-deb0-4b4d-9f81-396b20c8784b'
 
 # Author of this module
-Author = 'Travis Sobeck, Kyle Weeks, Jeff Bolduan'
+Author = 'Travis Sobeck, Kyle Weeks, Jeff Bolduan, Peter Bajurny'
 
 # Company or vendor of this module
 CompanyName = 'U of M'
@@ -121,7 +121,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Increased granularity of time in Send-SplunkHEC'
+        ReleaseNotes = 'Added function to return current time in Epoch time, useful for Splunk logging'
 
     } # End of PSData hashtable
 
