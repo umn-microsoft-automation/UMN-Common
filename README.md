@@ -1,5 +1,8 @@
 # UMN-Common
 
+## 1.0.8 - 4/15/2019
+Added function to return current time in Epoch time, useful for Splunk logging
+
 ## 1.0.7 - 4/12/2019
 Increased granularity of time in Send-SplunkHEC
 
