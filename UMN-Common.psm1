@@ -36,7 +36,7 @@ function Convert-ColumnIndexToA1Notation {
 	process {
 		while ($ColumnIndex -gt 0) {
 			$Temp = ($ColumnIndex -1) % 26
-			#$Letter = 
+			#$Letter =
 		}
 	}
 } #END Convert-ColumnIndexToA1Notation
@@ -130,7 +130,7 @@ function ConvertTo-OrderedDictionary {
 		} else {
 			throw [System.IO.InvalidDataException]
 		}
-	} 
+	}
     End {
 		return $Dictionary
 	}
@@ -150,14 +150,14 @@ function CreateZipFromPSModulePath
 
         [Parameter(Mandatory)]
         [string[]]$ListModuleNames,
-        
+
         [Parameter(Mandatory)]
         [string]$Destination
     )
-    
+
     foreach ($module in $ListModuleNames)
     {
-        $allVersions = Get-Module -Name $module -ListAvailable -Verbose        
+        $allVersions = Get-Module -Name $module -ListAvailable -Verbose
         # Package all versions of the module
         foreach ($moduleVersion in $allVersions)
         {
@@ -166,16 +166,16 @@ function CreateZipFromPSModulePath
             # Create package zip
             $path    = $moduleVersion.ModuleBase
             $version = $moduleVersion.Version.ToString()
-            Compress-Archive -Path "$path\*" -DestinationPath "$source.zip" -Verbose -Force 
+            Compress-Archive -Path "$path\*" -DestinationPath "$source.zip" -Verbose -Force
             $newName = "$Destination\$name" + "_" + "$version" + ".zip"
             # Rename the module folder to contain the version info.
             if (Test-Path $newName)
             {
-                Remove-Item $newName -Recurse -Force 
+                Remove-Item $newName -Recurse -Force
             }
-            Rename-Item -Path "$source.zip" -NewName $newName -Force    
-        } 
-    }   
+            Rename-Item -Path "$source.zip" -NewName $newName -Force
+        }
+    }
 
 }
 
@@ -185,7 +185,7 @@ function Get-ARP {
 			This function is designed to return all ARP entries
 
 		.DESCRIPTION
-			This function returns an object containing all arp entries and details for each sub item property. On 64-bit 
+			This function returns an object containing all arp entries and details for each sub item property. On 64-bit
 			powershell sessions there's dynamic paramters to specify the the 32-bit registry or 64-bit registry only
 
 		.NOTES
@@ -200,14 +200,14 @@ function Get-ARP {
 	#>
 	[CmdletBinding(DefaultParameterSetName='none')]
 	Param ()
- 
+
 	DynamicParam {
 		if ([IntPtr]::size -eq 8) {
 			$att1 = new-object -Type System.Management.Automation.ParameterAttribute -Property @{ParameterSetName="x64ARP"}
 			$attC1 = new-object -Type System.Collections.ObjectModel.Collection[System.Attribute]
 			$attC1.Add($att1)
 			$dynParam1 = new-object -Type System.Management.Automation.RuntimeDefinedParameter("x64ARP", [switch], $attC1)
-			
+
 			$att2 = new-object -Type System.Management.Automation.ParameterAttribute -Property @{ParameterSetName="x86ARP"}
 			$attC2 = new-object -Type System.Collections.ObjectModel.Collection[System.Attribute]
 			$attC2.Add($att2)
@@ -219,7 +219,7 @@ function Get-ARP {
 			return $paramDictionary
 		}
 	}
-	
+
 	Begin {
 		$Primary = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 		$Wow = "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
@@ -275,7 +275,7 @@ function Get-RandomString {
 
 		.PARAMETER LengthMin
 			Integer for the minimum length of the string
-		
+
 		.PARAMETER LengthMax
 			Integer for the maximum length of the string
 
@@ -286,7 +286,7 @@ function Get-RandomString {
 
 		.EXAMPLE
 			Get-RandomString -LengthMin 5 -LengthMax 10
-		
+
 			Will return a random string composed of [a-z][A-Z][0-9] and dash, underscore and period.  It's length will be between 5 and 10.
 	#>
 	[CmdletBinding()]
@@ -303,7 +303,7 @@ function Get-RandomString {
 		[ValidateNotNullOrEmpty()]
 		[string]$ValidCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_."
 	)
-	
+
 	$PossibleCharacters = $ValidCharacters.ToCharArray()
 
 	$Result = ""
@@ -313,7 +313,7 @@ function Get-RandomString {
 	} else {
 		$Length = Get-Random -Minimum $LengthMin -Maximum $LengthMax
 	}
-	
+
 	#Write-Verbose -Message "Length: $Length"
 	for($i = 0; $i -lt $Length; $i++) {
 		$Result += $PossibleCharacters | Get-Random
@@ -322,15 +322,15 @@ function Get-RandomString {
 	return $Result
 } #END Get-RandomString
 
-#region Get-UsersIDM	
-	function Get-UsersIDM 
+#region Get-UsersIDM
+	function Get-UsersIDM
 	{
 		<#
 			.Synopsis
 				Fetch list of users from IDM
 			.DESCRIPTION
 				Fetch list of users from IDM
-			.EXAMPLE    
+			.EXAMPLE
 				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(Role=*.cur*)"
 			.EXAMPLE
 				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(&(Role=*.staff.*)(cn=mrEd))"
@@ -397,7 +397,7 @@ function Get-WebReqErrorDetails {
 		[Parameter(Mandatory)]
 		[System.Management.Automation.ErrorRecord]$err
 	)
-	
+
 	$reader = New-Object System.IO.StreamReader($err.Exception.Response.GetResponseStream())
 	$reader.BaseStream.Position = 0
 	$reader.DiscardBufferedData()
@@ -463,13 +463,15 @@ function Out-RecursiveHash {
 			.PARAMETER host
 				Part of Splunk Metadata for event.  Device data being sent from
 			.PARAMETER source
-				Part of Splunk Metadata for event.  Source 
+				Part of Splunk Metadata for event.  Source
 			.PARAMETER sourceType
 				Part of Splunk Metadata for event.  SourceType
 			.PARAMETER metadata
 				Part of Splunk Metadata for event.   Combination of host,source,sourcetype in performatted hashtable, will be comverted to JSON
 			.PARAMETER eventData
 				Event Data in hastable or pscustomeobject, will be comverted to JSON
+			.PARAMETER JsonDepth
+				Optional, specifies the Depth parameter to pass to ConvertTo-JSON, defaults to 100
 		#>
 		[CmdletBinding()]
 		Param
@@ -495,7 +497,9 @@ function Out-RecursiveHash {
 
 			# This can be [Management.Automation.PSCustomObject] or [Collections.Hashtable]
 			[Parameter(Mandatory)]
-			$eventData
+			$eventData,
+
+			[int]$JsonDepth = 100
 		)
 
 		Begin{}
@@ -508,7 +512,7 @@ function Out-RecursiveHash {
 			#Without converting it to UTC the date would be offset by a number of hours equal to your timezone's offset from UTC
 			$bodySplunk['time'] = (Get-Date).toUniversalTime() | Get-Date -UFormat %s
 			$bodySplunk['event'] = $eventData
-			$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body ($bodySplunk | ConvertTo-Json) -Method Post
+			$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body ($bodySplunk | ConvertTo-Json -Depth $JsonDepth) -Method Post
 			if ($response.text -ne 'Success' -or $response.code -ne 0){throw "Failed to submit to Splunk HEC $($response)"}
 			else{return $true}
 		}
@@ -586,7 +590,7 @@ function Test-RegistryValue {
 			Name: Test-RegistryValue
 			Author: Jeff Bolduan
 			LASTEDIT: 09/01/2016
-		
+
 		.EXAMPLE
 			Test-RegistryValue -Path HKLM:\Foo\Bar -Value FooBar
 	#>
