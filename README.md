@@ -1,5 +1,8 @@
 # UMN-Common
 
+## 1.0.9 - 9/24/2019
+Added an optional JsonDepth parameter to Send-SplunkHEC to specify how data is converted to JSON.
+
 ## 1.0.8 - 4/15/2019
 Added function to return current time in Epoch time, useful for Splunk logging
 
