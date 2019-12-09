@@ -503,9 +503,9 @@ function Out-RecursiveHash {
 			[Parameter(Mandatory)]
 			$eventData,
 
-			[String]$Retries = 5,
+			[int]$Retries = 5,
 
-			[String]$SecondsDelay = 10,
+			[int]$SecondsDelay = 10,
 
 			[int]$JsonDepth = 100
 		)
