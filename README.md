@@ -1,5 +1,8 @@
 # UMN-Common
 
+## 1.0.10 - 12/9/2019
+Modifed send-SplunkHEC to retry if the initial invoke-restMethod fails
+
 ## 1.0.9 - 9/24/2019
 Added an optional JsonDepth parameter to Send-SplunkHEC to specify how data is converted to JSON.
 

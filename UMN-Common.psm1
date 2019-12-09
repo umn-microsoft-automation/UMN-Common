@@ -466,6 +466,10 @@ function Out-RecursiveHash {
 				Part of Splunk Metadata for event.  Source
 			.PARAMETER sourceType
 				Part of Splunk Metadata for event.  SourceType
+			.PARAMETER Retries
+				Set how many retries will be attempted if invoking fails
+			.PARAMETER SecondsDelay
+				Set how many seconds to wait between retries
 			.PARAMETER metadata
 				Part of Splunk Metadata for event.   Combination of host,source,sourcetype in performatted hashtable, will be comverted to JSON
 			.PARAMETER eventData
@@ -484,13 +488,13 @@ function Out-RecursiveHash {
 			[Collections.Hashtable]$header,
 
 			[Parameter(Mandatory,ParameterSetName='Components')]
-			[String]$host,
-
-			[Parameter(Mandatory,ParameterSetName='Components')]
 			[String]$source,
 
 			[Parameter(Mandatory,ParameterSetName='Components')]
 			[String]$sourceType,
+
+			[Parameter(Mandatory,ParameterSetName='Components')]
+			[String]$host,
 
 			[Parameter(Mandatory,ParameterSetName='hashtable')]
 			[Collections.Hashtable]$metadata,
@@ -499,10 +503,18 @@ function Out-RecursiveHash {
 			[Parameter(Mandatory)]
 			$eventData,
 
+			[String]$Retries = 5,
+
+			[String]$SecondsDelay = 10,
+
 			[int]$JsonDepth = 100
 		)
 
-		Begin{}
+		Begin{
+			$retryCount = 0
+			$completed = $false
+			$response = $null	
+		}
 		Process
 		{
 			if ($metadata){$bodySplunk = $metadata}
@@ -511,14 +523,30 @@ function Out-RecursiveHash {
 			#convert it to UTC (what Epoch is based on) then format it to seconds since January 1 1970.
 			#Without converting it to UTC the date would be offset by a number of hours equal to your timezone's offset from UTC
 			$bodySplunk['time'] = (Get-Date).toUniversalTime() | Get-Date -UFormat %s
+			$eventData.Add('retry',$retryCount)
 			$bodySplunk['event'] = $eventData
-			$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body ($bodySplunk | ConvertTo-Json -Depth $JsonDepth) -Method Post
-			if ($response.text -ne 'Success' -or $response.code -ne 0){throw "Failed to submit to Splunk HEC $($response)"}
-			else{return $true}
+		    while (-not $completed) {
+				try {
+					$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body ($bodySplunk | ConvertTo-Json -Depth $JsonDepth) -Method Post
+					if ($response.text -ne 'Success' -or $response.code -ne 0){throw "Failed to submit to Splunk HEC $($response)"}
+					$completed = $true
+				} 
+				catch {
+					if ($retrycount -ge $Retries) {
+						throw
+					} 
+					else {
+						Start-Sleep $SecondsDelay
+						$retrycount++
+						$bodySplunk.event.retry = $retryCount
+					}
+				}
+			}
 		}
-		End{}
+		End{return $true}
 	}
 #endregion
+
 
 #region Get-CurrentEpochTime
 function Get-CurrentEpochTime
