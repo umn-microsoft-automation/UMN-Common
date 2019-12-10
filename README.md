@@ -1,5 +1,10 @@
 # UMN-Common
 
+## 1.0.11 - 12/10/2019
+Fixed bug in Send-SplunkHEC when eventData was a PSCustomObject.
+Changed code to make copy of metadata hashtable rather than modifying in place
+Renamed Host parameter in Send-SplunkHEC to EventHost (and added alias for backwards compatiblity)
+
 ## 1.0.10 - 12/9/2019
 Modifed send-SplunkHEC to retry if the initial invoke-restMethod fails
 
