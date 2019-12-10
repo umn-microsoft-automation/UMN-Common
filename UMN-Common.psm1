@@ -493,8 +493,9 @@ function Out-RecursiveHash {
 			[Parameter(Mandatory,ParameterSetName='Components')]
 			[String]$sourceType,
 
+			[Alias("Host")]
 			[Parameter(Mandatory,ParameterSetName='Components')]
-			[String]$host,
+			[String]$EventHost,
 
 			[Parameter(Mandatory,ParameterSetName='hashtable')]
 			[Collections.Hashtable]$metadata,
@@ -513,32 +514,33 @@ function Out-RecursiveHash {
 		Begin{
 			$retryCount = 0
 			$completed = $false
-			$response = $null	
+			$response = $null
 		}
 		Process
 		{
-			if ($metadata){$bodySplunk = $metadata}
-			else {$bodySplunk = @{'host' = $host;'source' = $source;'sourcetype' = $sourcetype}}
+			if ($metadata){$bodySplunk = $metadata.Clone()}
+			else {$bodySplunk = @{'host' = $EventHost;'source' = $source;'sourcetype' = $sourcetype}}
 			#Splunk takes time in Unix Epoch format, so first get the current date,
 			#convert it to UTC (what Epoch is based on) then format it to seconds since January 1 1970.
 			#Without converting it to UTC the date would be offset by a number of hours equal to your timezone's offset from UTC
 			$bodySplunk['time'] = (Get-Date).toUniversalTime() | Get-Date -UFormat %s
-			$eventData.Add('retry',$retryCount)
-			$bodySplunk['event'] = $eventData
+			$internalEventData = $eventData | ConvertTo-Json | ConvertFrom-Json
+			Add-Member -InputObject $internalEventData -Name "SplunkHECRetry" -Value $retryCount -MemberType NoteProperty
+			$bodySplunk['event'] = $internalEventData
 		    while (-not $completed) {
 				try {
 					$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body ($bodySplunk | ConvertTo-Json -Depth $JsonDepth) -Method Post
 					if ($response.text -ne 'Success' -or $response.code -ne 0){throw "Failed to submit to Splunk HEC $($response)"}
 					$completed = $true
-				} 
+				}
 				catch {
 					if ($retrycount -ge $Retries) {
 						throw
-					} 
+					}
 					else {
 						Start-Sleep $SecondsDelay
 						$retrycount++
-						$bodySplunk.event.retry = $retryCount
+						$bodySplunk.event.SplunkHECRetry = $retryCount
 					}
 				}
 			}
