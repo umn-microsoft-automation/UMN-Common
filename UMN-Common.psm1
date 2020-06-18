@@ -330,8 +330,16 @@ function Get-RandomString {
 				Fetch list of users from IDM
 			.DESCRIPTION
 				Fetch list of users from IDM
+			.PARAMETER ldapServer
+				Name of LDAP server to connect to
+			.PARAMETER ldapSearchString
+				LDAP query to execute
+			.PARAMETER searchDN
+				DN to execute search against
+			.PARAMETER TimeoutMinutes
+				Timeout for the query, in minutes, defaults to 30. If the query exceeds this time it will throw an exception
 			.EXAMPLE
-				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(Role=*.cur*)"
+				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(Role=*.cur*)" -TimeoutMinutes 60
 			.EXAMPLE
 				$users = Get-UsersIDM -ldapCredential $ldapCredential -ldapServer $ldapServer -ldapSearchString "(&(Role=*.staff.*)(cn=mrEd))"
 		#>
@@ -347,7 +355,9 @@ function Get-RandomString {
 			[Parameter(Mandatory)]
 			[string]$ldapSearchString,
 
-			[string]$searchDN
+			[string]$searchDN,
+
+			[int]$TimeoutMinutes = 30
 		)
 		#Load the assemblies needed for ldap lookups
 		$null = [System.Reflection.Assembly]::LoadWithPartialName("System.DirectoryServices.Protocols")
@@ -369,8 +379,8 @@ function Get-RandomString {
 		$ldapSearch.Scope = "Subtree"
 		$ldapSearch.DistinguishedName = $searchDN
 
-		#execute query for Students...30 minute timeout...generally takes about 12 minutes
-		$ldapResponse = $ldapConnection.SendRequest($ldapSearch, (New-Object System.TimeSpan(0,30,0))) -as [System.DirectoryServices.Protocols.SearchResponse]
+		#execute query for Students...default 30 minute timeout...generally takes about 12 minutes
+		$ldapResponse = $ldapConnection.SendRequest($ldapSearch, (New-Object System.TimeSpan(0,$TimeoutMinutes,0))) -as [System.DirectoryServices.Protocols.SearchResponse]
 		$null = $ldapConnection.Dispose()
 		return ($ldapResponse)
 	}
