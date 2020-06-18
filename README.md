@@ -1,5 +1,8 @@
 # UMN-Common
 
+## 1.0.12 - 6/18/2020
+Make Timeout for Get-UsersIDM configurable
+
 ## 1.0.11 - 12/10/2019
 Fixed bug in Send-SplunkHEC when eventData was a PSCustomObject.
 Changed code to make copy of metadata hashtable rather than modifying in place

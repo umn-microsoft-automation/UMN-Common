@@ -28,7 +28,7 @@
 RootModule = 'UMN-Common.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.11'
+ModuleVersion = '1.0.12'
 
 # ID used to uniquely identify this module
 GUID = '4a7ba823-deb0-4b4d-9f81-396b20c8784b'
@@ -122,9 +122,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
-Fixed bug in Send-SplunkHEC when eventData was a PSCustomObject.
-Changed code to make copy of metadata hashtable rather than modifying in place
-Renamed Host parameter in Send-SplunkHEC to EventHost (and added alias for backwards compatiblity)
+Make Timeout for Get-UsersIDM configurable
 "@
 
     } # End of PSData hashtable
