@@ -18,7 +18,7 @@ resources:
       endpoint: umn-microsoft-automation
       type: github
       name: umn-microsoft-automation/AzureDevOpsTemplates
-      ref: refs/head/bajurny
+      ref: refs/heads/bajurny
 
 stages:
 - template: PSModules/public-module.yml@umn_templates
