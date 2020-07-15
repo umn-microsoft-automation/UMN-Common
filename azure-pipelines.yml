@@ -7,6 +7,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  - template: variables.yml@umn_templates
   - name: ModuleName
     value: UMN-Common
   - name: FailOnTestFailure
