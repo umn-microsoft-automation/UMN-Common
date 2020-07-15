@@ -1,0 +1,26 @@
+trigger:
+  - '*'
+pr:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  - name: ModuleName
+    value: UMN-Common
+  - name: FailOnTestFailure
+    value: true
+
+resources:
+  repositories:
+    - repository: umn_templates
+      endpoint: github.com_umn-oit-hosting
+      type: github
+      name: umn-microsoft-automation/AzureDevOpsTemplates
+
+stages:
+- template: PSModules/public-module.yml@umn_templates
+  parameters:
+    ModuleName: $(ModuleName)
+    FailOnTestFailure: ${{ variables.FailOnTestFailure }}
