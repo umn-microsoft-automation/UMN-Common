@@ -7,11 +7,10 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  - template: PSModules/variables.yml@umn_templates
   - name: ModuleName
     value: UMN-Common
   - name: FailOnTestFailure
-    value: true
+    value: false
 
 resources:
   repositories:
