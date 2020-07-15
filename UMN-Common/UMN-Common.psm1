@@ -537,9 +537,19 @@ function Out-RecursiveHash {
 			$internalEventData = $eventData | ConvertTo-Json | ConvertFrom-Json
 			Add-Member -InputObject $internalEventData -Name "SplunkHECRetry" -Value $retryCount -MemberType NoteProperty
 			$bodySplunk['event'] = $internalEventData
+			$body = ($bodySplunk | ConvertTo-Json -Depth $JsonDepth)
+			$specialDashes = '[\u2013\u2014\u2015]'
+			$specialSingleQuotes = '[\u2018\u2019\u201A\u201B]'
+			$specialDoubleQuotes = '[\u201C\u201D\u201E]'
+			$body  = $body -replace $specialDashes,"-" -replace $specialSingleQuotes,"'" -replace $specialDoubleQuotes,'\"'
+
+			$body = [Regex]::Replace($body,
+				"(?<=[^\\])\\u(?<Value>[a-zA-Z0-9]{4})", {
+					param($m) ([char]([int]::Parse($m.Groups['Value'].Value,
+						[System.Globalization.NumberStyles]::HexNumber))).ToString() } )
 		    while (-not $completed) {
 				try {
-					$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body ($bodySplunk | ConvertTo-Json -Depth $JsonDepth) -Method Post
+					$response = Invoke-RestMethod -Uri $uri -Headers $header -UseBasicParsing -Body $clean -Method Post
 					if ($response.text -ne 'Success' -or $response.code -ne 0){throw "Failed to submit to Splunk HEC $($response)"}
 					$completed = $true
 				}

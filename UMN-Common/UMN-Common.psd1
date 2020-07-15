@@ -121,9 +121,9 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = @"
-Make Timeout for Get-UsersIDM configurable
-"@
+        # ReleaseNotes = ''
+
+        Prerelease = ''
 
     } # End of PSData hashtable
 
