@@ -15,7 +15,7 @@ variables:
 resources:
   repositories:
     - repository: umn_templates
-      endpoint: github.com_umn-oit-hosting
+      endpoint: umn-microsoft-automation
       type: github
       name: umn-microsoft-automation/AzureDevOpsTemplates
 
