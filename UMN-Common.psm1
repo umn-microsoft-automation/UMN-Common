@@ -834,10 +834,10 @@ function new-password{
 		}
 	}
 	Process{
-		$password = Get-RandomCharacters -length $length -characters 'abcdefghiklmnoprstuvwxyz'
-		$password += Get-RandomCharacters -length $length2 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
-		$password += Get-RandomCharacters -length $length3 -characters '1234567890'
-		$password += Get-RandomCharacters -length $length4 -characters '!$%&()=}][{#+'
+		$password = Get-RandomCharacter -length $length -characters 'abcdefghiklmnoprstuvwxyz'
+		$password += Get-RandomCharacter -length $length2 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
+		$password += Get-RandomCharacter -length $length3 -characters '1234567890'
+		$password += Get-RandomCharacter -length $length4 -characters '!$%&()=}][{#+'
 		$password = Scramble-String $password
 	}
 	End{return $password}
