@@ -1,5 +1,9 @@
 # UMN-Common
 
+## 1.0.13 - 9/14/2020
+Added function 'new-password' which makes use of Scramble-String and Get-RandomCharacter.
+This is for generating a random string of characters suitable for passwords.
+
 ## 1.0.12 - 6/18/2020
 Make Timeout for Get-UsersIDM configurable
 

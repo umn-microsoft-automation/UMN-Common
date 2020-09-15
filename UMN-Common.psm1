@@ -736,3 +736,109 @@ function Write-Log {
 		if ($Console -eq $true) {Write-Host $Message}
 
 } #END Write-Log
+
+function Get-RandomCharacter{
+	<#
+	.SYNOPSIS
+	This function is to randomize a list of characters for password generation.
+
+	.PARAMETER length
+	How many of each character set you want.
+
+	.PARAMETER characters
+	A set list of characters to be selected from.
+
+	.EXAMPLE
+	Get-RandomCharacters -length 2 -characters '1234567890'
+	42
+	#>
+
+	param(
+	[Parameter(Mandatory=$true)]$length,
+	[Parameter(Mandatory=$true)]$characters
+	)
+	Begin{}
+	Process{
+		$random = 1..$length | ForEach-Object {Get-Random -Maximum $characters.length}
+		$private:ofs=""
+	}
+	End{
+		return [String]$characters[$random]
+	}
+}
+
+function Scramble-String{
+	<#
+		.SYNOPSIS
+		This function takes a list of characters and randomizes them.
+
+		.PARAMETER inputString
+		A string of characters to scramble.
+
+		.EXAMPLE
+		Scramble-String -inputString '12345'
+		51432
+	#>
+	param(
+	[Parameter(Mandatory=$true)]
+	[string]$inputString
+	)
+	Begin{$characterArray = $inputString.ToCharArray()}
+	Process{
+		$scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length
+		$outputString = -join $scrambledStringArray
+	}
+	End{return $outputString}
+}
+
+function new-password{
+	<#
+		.SYNOPSIS
+		This function just generates a password based on predetermined character list.
+
+		.PARAMETER passwordLength
+		The length of the password
+
+		.EXAMPLE
+		new-password -passwordLength 15
+		42
+	#>
+	param(
+		[int]$passwordLength = 40
+	)
+	Begin{
+		$length = [System.Math]::Round(($length = $passwordLength/4),0)
+		$decimalTest = ($passwordLength/4).toString()
+		If($decimalTest -like "*.*"){
+			[int]$length = ($decimalTest.Split('.'))[0]
+		}
+		Else{
+			$length2 = $length
+			$length3 = $length
+			$length4 = $length
+		}
+		If($decimalTest -like "*.25"){
+			$length2 = $length
+			$length3 = $length
+			$length4 = $length+1
+		}
+		If($decimalTest -like "*.5*"){
+			$length2 = $length
+			$length3 = $length+1
+			$length4 = $length3
+		}
+		If($decimalTest -like "*.75"){
+			$length2 = $length+1
+			$length3 = $length2
+			$length4 = $length2
+		}
+	}
+	Process{
+		$password = Get-RandomCharacters -length $length -characters 'abcdefghiklmnoprstuvwxyz'
+		$password += Get-RandomCharacters -length $length2 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
+		$password += Get-RandomCharacters -length $length3 -characters '1234567890'
+		$password += Get-RandomCharacters -length $length4 -characters '!$%&()=}][{#+'
+		$password = Scramble-String $password
+	}
+	End{return $password}
+}

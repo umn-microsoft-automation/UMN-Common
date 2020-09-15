@@ -28,7 +28,7 @@
 RootModule = 'UMN-Common.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.12'
+ModuleVersion = '1.0.13'
 
 # ID used to uniquely identify this module
 GUID = '4a7ba823-deb0-4b4d-9f81-396b20c8784b'
@@ -122,7 +122,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
-Make Timeout for Get-UsersIDM configurable
+Add string functions to generate passwords.
 "@
 
     } # End of PSData hashtable
