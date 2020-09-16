@@ -736,3 +736,101 @@ function Write-Log {
 		if ($Console -eq $true) {Write-Host $Message}
 
 } #END Write-Log
+
+function Get-RandomCharacter{
+	<#
+	.SYNOPSIS
+	This function is to randomize a list of characters for password generation.
+
+	.PARAMETER length
+	How many of each character set you want.
+
+	.PARAMETER characters
+	A set list of characters to be selected from.
+
+	.EXAMPLE
+	Get-RandomCharacters -length 2 -characters '1234567890'
+	42
+
+	.NOTES
+	Taken from all over the web. Notable = https://activedirectoryfaq.com/2017/08/creating-individual-random-passwords/
+	#>
+
+	param(
+	[Parameter(Mandatory=$true)]$length,
+	[Parameter(Mandatory=$true)]$characters
+	)
+	Begin{}
+	Process{
+		$random = 1..$length | ForEach-Object {Get-Random -Maximum $characters.length}
+	}
+	End{
+		return $characters[$random] -join ''
+
+	}
+}
+
+function Scramble-String{
+	<#
+		.SYNOPSIS
+		This function takes a list of characters and randomizes them.
+
+		.PARAMETER inputString
+		A string of characters to scramble.
+
+		.EXAMPLE
+		Scramble-String -inputString '12345'
+		51432
+
+		.NOTES
+		Taken from all over the web. Notable = https://activedirectoryfaq.com/2017/08/creating-individual-random-passwords/
+	#>
+	param(
+	[Parameter(Mandatory=$true)]
+	[string]$inputString
+	)
+	Begin{$characterArray = $inputString.ToCharArray()}
+	Process{
+		$scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length
+		$outputString = $scrambledStringArray -join ''
+	}
+	End{return $outputString}
+}
+
+function New-Password{
+	<#
+		.SYNOPSIS
+		This function just generates a password based on predetermined character list.
+
+		.PARAMETER passwordLength
+		The length of the password
+
+		.EXAMPLE
+		New-Password -passwordLength 15
+		42
+
+		.NOTES
+		Taken from all over the web. Notable = https://activedirectoryfaq.com/2017/08/creating-individual-random-passwords/
+	#>
+	param(
+		[int]$passwordLength = 40
+	)
+	Begin{
+		[int]$length = [Math]::Truncate($passwordLength / 4)
+
+		switch ($passwordLength % 4) {
+			0 { $lengths = @($length, $length, $length, $length) }
+			1 { $lengths = @($length, $length, $length, ($length + 1)) }
+			2 { $lengths = @($length, $length, ($length + 1), ($length + 1)) }
+			3 { $lengths = @($length, ($length + 1), ($length + 1), ($length + 1)) }
+		}
+	}
+	Process{
+		$password = Get-RandomCharacter -length $lengths[0] -characters 'abcdefghiklmnoprstuvwxyz'
+		$password += Get-RandomCharacter -length $lengths[1] -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
+		$password += Get-RandomCharacter -length $lengths[2] -characters '1234567890'
+		$password += Get-RandomCharacter -length $lengths[3] -characters '!$%&()=}][{#+'
+		$password = Scramble-String $password
+	}
+	End{return $password}
+}
