@@ -805,6 +805,9 @@ function New-Password{
 		.PARAMETER passwordLength
 		The length of the password
 
+		.PARAMETER special
+		Boolean for ignoring special characters. Default is True
+
 		.EXAMPLE
 		New-Password -passwordLength 15
 		42
@@ -813,7 +816,9 @@ function New-Password{
 		Taken from all over the web. Notable = https://activedirectoryfaq.com/2017/08/creating-individual-random-passwords/
 	#>
 	param(
-		[int]$passwordLength = 40
+		[int]$passwordLength = 40,
+
+		[boolean]$special = $True
 	)
 	Begin{
 		[int]$length = [Math]::Truncate($passwordLength / 4)
@@ -829,7 +834,12 @@ function New-Password{
 		$password = Get-RandomCharacter -length $lengths[0] -characters 'abcdefghiklmnoprstuvwxyz'
 		$password += Get-RandomCharacter -length $lengths[1] -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
 		$password += Get-RandomCharacter -length $lengths[2] -characters '1234567890'
-		$password += Get-RandomCharacter -length $lengths[3] -characters '!$%&()=}][{#+'
+		If($special -eq $True){
+			$password += Get-RandomCharacter -length $lengths[3] -characters '!$%&()=}][{#+'
+		}
+		Else{
+			$password += Get-RandomCharacter -length $lengths[3] -characters '150AHKbrp2z3'
+		}
 		$password = Scramble-String $password
 	}
 	End{return $password}

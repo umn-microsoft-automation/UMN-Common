@@ -28,7 +28,7 @@
 RootModule = 'UMN-Common.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.13'
+ModuleVersion = '1.0.14'
 
 # ID used to uniquely identify this module
 GUID = '4a7ba823-deb0-4b4d-9f81-396b20c8784b'
