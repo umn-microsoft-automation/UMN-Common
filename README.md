@@ -1,5 +1,9 @@
 # UMN-Common
 
+## 1.0.14 6/8/2022
+
+Tweak new-password function to allow for no special characters option.
+
 ## 1.0.13 - 9/14/2020
 Added function 'new-password' which makes use of Scramble-String and Get-RandomCharacter.
 This is for generating a random string of characters suitable for passwords.
